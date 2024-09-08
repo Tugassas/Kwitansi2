@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kwitansi Pembayaran</title>
+    <style>
+        @media print {
+            .container {
+                width: 642px; /* Width of 17 cm in pixels */
+                margin: 0 auto;
+                padding: 10px;
+                border: 1px solid black;
+                font-size: 10px;
+                box-sizing: border-box;
+                overflow: hidden; /* To avoid scrollbars when printing */
+            }
+            .header {
+                font-size: 14px; /* Font size in header */
+                margin-bottom: 10px;
+                text-align: center;
+                font-weight: bold;
+            }
+            .field, .footer div {
+                margin-bottom: 10px;
+            }
+            .field label, .footer div label {
+                font-size: 10px;
+                font-weight: bold;
+                display: block;
+            }
+            .field input, .footer div input {
+                font-size: 10px;
+                padding: 3px;
+                margin-top: 3px;
+                width: 100%;
+                border: 1px solid black;
+                border-radius: 3px;
+                box-sizing: border-box;
+            }
+            .footer {
+                display: flex;
+                justify-content: space-between;
+                align-items: flex-start;
+                margin-top: 20px;
+                font-size: 10px;
+            }
+            .footer .rp-input {
+                display: flex;
+                align-items: center;
+                gap: 5px;
+            }
+            .signature-section {
+                text-align: right;
+                font-size: 10px;
+            }
+            .signature-section .date label, .signature-section .name label {
+                display: inline;
+                margin-right: 5px;
+            }
+            .signature-section .date input {
+                font-size: 10px;
+                border: none;
+                border-bottom: 1px dotted black;
+                width: 150px;
+                text-align: left;
+            }
+            .signature-section .name {
+                margin-top: 30px; /* Increased space between Name and Date */
+            }
+            .signature-section .name input {
+                font-size: 10px;
+                border: none;
+                border-bottom: 1px dotted black;
+                width: 150px;
+                text-align: left;
+            }
+            .signature-line {
+                border-top: 1px dotted black;
+                width: 250px;
+                margin: 10px 0;
+                display: inline-block;
+                text-align: left;
+            }
+            /* Hide the file upload and button container during printing */
+            .file-upload-container, .button-container {
+                display: none;
+            }
+        }
+
+        body {
+            font-family: "Times New Roman", Times, serif;
+            margin: 20px;
+        }
+        .container {
+            width: 642px;
+            margin: 0 auto;
+            padding: 10px;
+            border: 1px solid black;
+            font-size: 10px;
+            box-sizing: border-box;
+        }
+        .header {
+            text-align: center;
+            font-size: 14px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        .field, .footer div {
+            margin-bottom: 10px;
+        }
+        .field label, .footer div label {
+            font-weight: bold;
+            font-size: 10px;
+            display: block;
+        }
+        .field input, .footer div input {
+            width: 100%;
+            padding: 3px;
+            margin-top: 3px;
+            border: 1px solid black;
+            border-radius: 3px;
+            font-size: 10px;
+            box-sizing: border-box;
+        }
+        .footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-top: 20px;
+            font-size: 10px;
+        }
+        .footer .rp-input {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .signature-section {
+            text-align: right;
+            font-size: 10px;
+        }
+        .signature-section .date label, .signature-section .name label {
+            display: inline;
+            margin-right: 5px;
+        }
+        .signature-section .date input {
+            font-size: 10px;
+            border: none;
+            border-bottom: 1px dotted black;
+            width: 150px;
+            text-align: left;
+        }
+        .signature-section .name {
+            margin-top: 30px; /* Increased space between Name and Date */
+        }
+        .signature-section .name input {
+            font-size: 10px;
+            border: none;
+            border-bottom: 1px dotted black;
+            width: 150px;
+            text-align: left;
+        }
+        .signature-line {
+            border-top: 1px dotted black;
+            width: 250px;
+            margin: 10px 0;
+            display: inline-block;
+            text-align: left;
+        }
+        .file-upload-container {
+            margin-top: 100px; /* Adds more space between the main content and this section */
+            text-align: center;
+        }
+        .button-container {
+            margin-top: 100px; /* Adds more space between the main content and this section */
+            text-align: center;
+        }
+        .button-container button {
+            margin: 5px;
+            padding: 5px 10px;
+            font-size: 10px;
+        }
+    </style>
+    <script>
+        // Function to save all input values to JSON and download
+        function saveToJSON() {
+            const inputs = document.querySelectorAll('.container input');
+            const data = {};
+            inputs.forEach(input => {
+                data[input.id] = input.value;
+            });
+
+            // Convert data to JSON
+            const jsonData = JSON.stringify(data, null, 2);
+
+            // Create a Blob and download it
+            const blob = new Blob([jsonData], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'kwitansi.json';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        // Load all input values from localStorage
+        function loadInputs() {
+            const inputs = document.querySelectorAll('.container input');
+            inputs.forEach(input => {
+                const savedValue = localStorage.getItem(input.id);
+                if (savedValue) {
+                    input.value = savedValue;
+                }
+            });
+        }
+
+        // Function to print the receipt
+        function printReceipt() {
+            window.print();
+        }
+
+        // Load input values when the page is loaded
+        window.onload = function() {
+            loadInputs();
+        };
+    </script>
+</head>
+<body>
+
+<div class="container">
+    <div class="header">Kwitansi Pembayaran</div>
+
+    <div class="field">
+        <label for="no-kwitansi">Nomor Kwitansi:</label>
+        <input type="text" id="no-kwitansi" placeholder="Nomor Kwitansi">
+    </div>
+
+    <div class="field">
+        <label for="terima-dari">Telah diterima dari:</label>
+        <input type="text" id="terima-dari" placeholder="Nama Pengirim">
+    </div>
+
+    <div class="field">
+        <label for="uang-sejumlah">Uang sejumlah:</label>
+        <input type="text" id="uang-sejumlah" placeholder="Jumlah Uang">
+    </div>
+
+    <div class="field">
+        <label for="guna-pembayaran">Untuk Pembayaran:</label>
+        <input type="text" id="guna-pembayaran" placeholder="Guna Pembayaran">
+    </div>
+
+    <!-- Combined Footer and Signature Section -->
+    <div class="footer">
+        <div class="rp-input">
+            <label for="jumlah">Rp.:</label>
+            <input type="text" id="jumlah" placeholder="Jumlah Uang yang Dibayar">
+        </div>
+
+        <!-- Signature Section -->
+        <div class="signature-section">
+            <!-- Date Section -->
+            <div class="date">
+                <label for="tanggal-transaksi">Yogyakarta,</label>
+                <input type="date" id="tanggal-transaksi">
+            </div>
+            <!-- Name Input -->
+            <div class="name">
+                <input type="text" id="nama-penandatangan" placeholder="Nama Penandatangan">
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="file-upload-container">
+    <input type="file" id="fileInput">
+</div>
+
+<div class="button-container">
+    <button onclick="saveToJSON()">Save</button>
+    <button onclick="printReceipt()">Print</button>
+</div>
+
+</body>
+</html>
+
+
